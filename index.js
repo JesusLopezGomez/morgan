@@ -1,12 +1,13 @@
 const express = require("express");
 const morgan = require("morgan");
 const app = express();
+const Athelete = require("./models/athelete");
+
 require("dotenv").config();
 
 const mongoose = require("mongoose");
+const athelete = require("./models/athelete");
 mongoose.set("strictQuery", false);
-
-
 
 async function main() {
   await mongoose.connect(process.env.MONGO_CNN);
@@ -20,6 +21,28 @@ app.use(express.json());
 app.get("/", (req, res, next) => {
   return res.json("¡Hola!");
 });
+
+app.post("/athelete",async (req,res) => {
+  const athelete = req.body;
+  //Validaciones
+  const newAthelete = new Athelete(athelete);
+  try{
+    await newAthelete.save();
+    res.status(201).json(newAthelete);
+  }catch(err){
+    res.status(500).json({message: err});
+  }
+})
+
+
+app.get("/athelete",async (req,res) => {
+  try{
+    const atheletes = await Athelete.find();
+    res.status(200).json(atheletes);
+  }catch(err){
+    res.status(500).json({message : err});
+  }
+})
 
 // Captura el error 404 y lo envía al manejador de errores
 app.use((req, res, next) => {
